@@ -44,6 +44,15 @@
     // 🎬 Creando nueva escena
     var scene = new THREE.Scene();
 
+    // ⛅ Textura del entorno o domo
+    var loader = new THREE.TextureLoader();
+    loader.load('./img/textura.jpg', function (texture) { // 👈 Reemplaza la ruta por la ruta y nombre de tu textura
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      scene.environment = texture;
+      scene.background = texture;
+      scene.background = texture;
+    });
+
     // 📷 Creando nueva cámara de perspectiva
     var camera = new THREE.PerspectiveCamera(
       70,
@@ -92,7 +101,7 @@
 
     // Elementos
     const geometry = new THREE.SphereGeometry(1, 32, 16);
-    const material = new THREE.MeshLambertMaterial({ color: 0xff6b00 });
+    const material = new THREE.MeshLambertMaterial({ color: 0x34849E });
     const fuselaje = new THREE.Mesh(geometry, material);
     fuselaje.scale.x = 2;
     scene.add(fuselaje);
@@ -232,6 +241,9 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
+
+        console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
+
       }
     });
 
@@ -245,6 +257,9 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
+
+        console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
+
       }
 
       if (event.key === 'ArrowLeft') {
@@ -256,6 +271,8 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
+
+
       }
 
       if (event.key === 'ArrowRight') {
@@ -291,7 +308,7 @@
         tween.to({ posicion_en_y: toda_la_avioneta.position.y - 2 }, 400);
         tween.start();
 
-        tween_rotation.to({ rotacion_en_x: Math.PI * 2 }, 1000); // 👈 Personaliza el giro
+        tween_rotation.to({ rotacion_en_x: Math.PI * 2 }, 500); // 👈 Personaliza el giro
         tween_rotation.repeat(1);
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
@@ -300,7 +317,7 @@
       }
 
     });
-
+    scene
     //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
     requestAnimationFrame(render);
     function render() {
@@ -318,6 +335,7 @@
 
       //Actualización del OrbitControls para generar la suavidad de movimiento
       controls.update();
+
 
       //Llamado para renderizar y volver a llamar a la misma función (render)
       renderer.render(scene, camera);
