@@ -30,6 +30,9 @@
     import * as THREE from './js/three.module.js';
     import { OrbitControls } from './js/OrbitControls.js';
 
+    import { TWEEN } from './js/tween.module.min.js'; //👈 Importar librería de TWEEN.
+
+
     // ⚙️ Renderer
     var renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById('myCanvas'),
@@ -158,12 +161,43 @@
 
     // Declaración de la función
     function avioneta_movimiento_sin() {
-      toda_la_avioneta.position.y = Math.sin(clock.getElapsedTime() * velocidad) * amplitud;
+      toda_la_avioneta.position.y = toda_la_avioneta.position.y + Math.sin(clock.getElapsedTime() * velocidad) * amplitud;
     }
+
+    // 🔮 - - - - - - Magia del tweening - - - - - -
+    // Objeto de posiciones
+    var posiciones_originales = {
+      posicion_en_x: 0,
+      posicion_en_y: 0,
+      posicion_en_z: 0,
+    };
+
+    var nuevas_posiciones = {
+      posicion_en_x: 20,
+      posicion_en_y: 4,
+      posicion_en_z: 0,
+    };
+
+    //Objeto tween
+    var tween = new TWEEN.Tween(posiciones_originales);
+    tween.repeat(Infinity)
+
+    //Función magia_tweening() para inicializar el interpolado
+    function magia_tweening() {
+      tween.to(nuevas_posiciones, 2000);
+      tween.start();
+    }
+
+    magia_tweening();
 
     //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
     requestAnimationFrame(render);
     function render() {
+      //💃 Animación
+      toda_la_avioneta.position.y = posiciones_originales.posicion_en_y;
+      toda_la_avioneta.position.x = posiciones_originales.posicion_en_x;
+      toda_la_avioneta.position.z = posiciones_originales.posicion_en_z;
+      TWEEN.update();
       grupo_de_helices.rotation.x += 0.2;
       avioneta_movimiento_sin();
       //💃 Animación
