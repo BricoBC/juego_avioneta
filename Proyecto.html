@@ -5,6 +5,10 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Sigmar&display=swap" rel="stylesheet">
+
   <title>Estefanny Jaquelin Sobrevilla Acosta</title>
   <style>
     * {
@@ -17,12 +21,68 @@
       padding: 0;
       overflow: hidden;
     }
+
+    #myCanvas {
+      position: fixed;
+      /*establece la posición del canvas como fija*/
+      top: 0;
+      /* coloca el canvas en la parte superior de la página*/
+      left: 0;
+      /* coloca el canvas en la esquina superior izquierda de la página*/
+      z-index: -1;
+      /* establece el índice z en -1, lo que lo coloca detrás de otros elementos*/
+      width: 100%;
+      /* establece el ancho del canvas como el ancho completo de la ventana del navegador*/
+      height: 100%;
+      /* establece la altura del canvas como la altura completa de la ventana del navegador*/
+    }
+
+    #interfaz {
+      position: fixed;
+      /* establece la posición del div como fija*/
+      top: 0;
+      /* coloca el div en la parte superior de la página*/
+      left: 0;
+      /* coloca el div en la esquina superior izquierda de la página*/
+      z-index: 1;
+      /* establece el índice z en 1, lo que lo coloca encima de otros elementos*/
+      width: 100%;
+      /* establece el ancho del div como el ancho completo de la ventana del navegador*/
+      height: 50px;
+      /* establece la altura del div en 50 píxeles*/
+      background-color: transparent;
+      /* establece el fondo del div como transparente*/
+      /* otros estilos para la barra de navegación */
+    }
+
+    #interfaz {
+      text-align: center;
+      font-family: 'Sigmar', cursive;
+    }
+
+    #miDiv>span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .miDivC>span {
+      font-family: 'Creepster', cursive;
+      font-size: 84px;
+      color: brown;
+    }
   </style>
 </head>
 
 <body>
   <!-- Canvas where the render shows -->
   <canvas id="myCanvas"></canvas>
+
+  <!-- Interfaz -->
+  <div id="interfaz">
+    <div id="miDiv">Distancia en x: <span id="distanciaX"></span></div>
+    <div id="miDiv">Altura: <span id="altura"></span></div>
+  </div>
 
   <!-- Aquí va todo el código de three.js -->
   <script type="module">
@@ -86,10 +146,10 @@
       renderer.setSize(sizes.width, sizes.height);
     });
 
-    // 🎮 Añadiendo los OrbitControls
-    var controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    // // 🎮 Añadiendo los OrbitControls
+    // var controls = new OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.05;
 
     // Añadiendo GridHelper
     const size = 10000;
@@ -200,7 +260,7 @@
     // 🔮 - - - - - - Magia del tweening - - - - - -
     // Objeto de posiciones 
     var posiciones_originales = {
-      posicion_en_x: -4,
+      posicion_en_x: 0,
       posicion_en_y: 0,
       posicion_en_z: 0,
       rotacion_en_x: 0, // 👈 Nuevas propiedades para rotar el objeto.
@@ -379,6 +439,22 @@
 
     scene.add(grupo_de_nubes);
 
+    /*================================ Movimiento de la cámara ==============================*/
+    var aceleracion = 0;
+    var factor_velocidad_hacia_adelante = 0.1;
+
+    function seguir_avioneta_camara() {
+      camera.position.x = toda_la_avioneta.position.x - 20;
+      camera.position.y = toda_la_avioneta.position.y + 3;
+      camera.position.z = toda_la_avioneta.position.z;
+    }
+
+    function desplazamiento_avioneta() {
+      toda_la_avioneta.position.x += factor_velocidad_hacia_adelante;
+    }
+
+    camera.lookAt(1, 0, 0)
+
 
     //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
     requestAnimationFrame(render);
@@ -396,7 +472,14 @@
       //💃 Animación
 
       //Actualización del OrbitControls para generar la suavidad de movimiento
-      controls.update();
+      // controls.update();
+
+      const elemento_distanciaX = document.getElementById('distanciaX'); // busca el elemento con id 'distanciaX' y lo asigna a la variable 'span
+      const elemento_altura = document.getElementById('altura');
+
+      elemento_distanciaX.textContent = toda_la_avioneta.position.x; // establece el contenido del elemento 'span' como el valor de la posición X de un objeto llamado 'toda_la_avioneta'
+      elemento_altura.textContent = toda_la_avioneta.position.y;
+
 
 
       //Llamado para renderizar y volver a llamar a la misma función (render)
