@@ -58,7 +58,7 @@
       70,
       window.innerWidth / window.innerHeight,
       0.1,
-      50
+      500
     );
     scene.add(camera);
 
@@ -92,8 +92,8 @@
     controls.dampingFactor = 0.05;
 
     // Añadiendo GridHelper
-    const size = 10;
-    const divisions = 10;
+    const size = 10000;
+    const divisions = 1000;
     const gridHelper = new THREE.GridHelper(size, divisions);
     scene.add(gridHelper); //Si lo quitas explota todo
 
@@ -317,7 +317,69 @@
       }
 
     });
-    scene
+
+
+    // ☁☁☁☁ NUBES ☁☁☁☁
+    //Creando un nube
+    let geometry_nube = new THREE.SphereGeometry(1, 13, 8);
+    let material_nube = new THREE.MeshBasicMaterial({
+      color: 0xf1f1f1,
+      transparent: true,
+      opacity: 0.5,
+      wireframe: false,
+    });
+    let mesh1_nube = new THREE.Mesh(geometry_nube, material_nube);
+    let mesh2_nube = new THREE.Mesh(geometry_nube, material_nube);
+    let mesh3_nube = new THREE.Mesh(geometry_nube, material_nube);
+
+    mesh1_nube.position.set(0, 0, -1);
+    mesh2_nube.position.set(0, 0.2, -0);
+    mesh3_nube.position.set(0, 0, 1);
+
+    //Creando el grupo que conforma 1 nube
+    let grupo_nube = new THREE.Group();
+
+    //Añadiendo al grupo de 1 nube
+    grupo_nube.add(mesh1_nube);
+    grupo_nube.add(mesh2_nube);
+    grupo_nube.add(mesh3_nube);
+
+    //Escalando el grupo de 1 nube
+    grupo_nube.scale.set(10, 10, 10);
+
+    //Grupo de muchas nubes
+    let grupo_de_nubes = new THREE.Group();
+
+    //Variables del random
+    const random_min = -8;
+    const random_max = 8;
+
+    //Bucle que genera el conjunto de 10 nubes
+    for (let iteracion = 0; iteracion < 80; iteracion++) { //👈 Ciclo for, que generará 10 nubes
+
+      let nube = grupo_nube.clone(); //clonando el grupo, añadiendo a la variable nube
+      let nube_2 = grupo_nube.clone();
+
+      //Cambiando la posición de la nube generada
+      nube.position.x = iteracion * 20; // Esta es la separación entre cada nube: la iteración
+      nube.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
+      nube.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) + 55;
+
+      nube_2.position.x = iteracion * 20 + 10;
+      nube_2.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
+      nube_2.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) - 55;
+
+
+      //Añadiendo nueva nube al grupo de nubes
+      grupo_de_nubes.add(nube, nube_2);
+
+    }
+
+    grupo_de_nubes.position.y = -15; //Colocando el grupo de nubes debajo del nivel de suelo.
+
+    scene.add(grupo_de_nubes);
+
+
     //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
     requestAnimationFrame(render);
     function render() {
