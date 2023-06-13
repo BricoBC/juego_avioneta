@@ -84,9 +84,9 @@
     <div class="miDiv">Distancia en x: <span id="distanciaX"></span></div>
     <div class="miDiv">Altura: <span id="altura"></span></div>
     <div>Combustible: <span id="combustible"></span></div>
-    <!-- <div class="miDivC"><span id="aviso_izq"></span></div>
+    <div class="miDivC"><span id="aviso_izq"></span></div>
     <div class="miDivC"><span id="aviso_der"></span></div>
-    <div class="miDivC"><span id="aviso_piso"></span></div> -->
+    <div class="miDivC"><span id="aviso_piso"></span></div>
   </div>
 
 
@@ -274,7 +274,7 @@
     };
 
     var nuevas_posiciones = {
-      posicion_en_x: 20,
+      posicion_en_x: 300,
       posicion_en_y: 4,
       posicion_en_z: 0,
     };
@@ -287,7 +287,7 @@
 
     //Función magia_tweening() para inicializar el interpolado
     function magia_tweening() {
-      tween.to(nuevas_posiciones, 2000);
+      tween.to(nuevas_posiciones, 20000);
       tween.start();
     }
 
@@ -301,8 +301,8 @@
     var combustible = 10;
     document.addEventListener('keydown', function (event) {
       if (event.key === 'ArrowUp') {
-        // tween.to({ posicion_en_y: toda_la_avioneta.position.y + 1 }, 400);
-        // tween.start();
+        tween.to({ posicion_en_y: toda_la_avioneta.position.y + 5 }, 400);
+        tween.start();
 
         tween_rotation.to({ rotacion_en_z: Math.PI * (1 / 8) }, 200); // 👈 Personaliza el giro
         tween_rotation.repeat(1);
@@ -310,19 +310,17 @@
         tween_rotation.yoyo(true);
         tween_rotation.start();
 
-        if (combustible > 0) {
-          combustible -= 0.01;
-          subir += 0.07;
-        }
+      }
 
-        console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
-
+      if (combustible > 0) {
+        combustible -= 0.01;
+        subir += 0.07;
       }
     });
 
     document.addEventListener('keydown', function (event) {
       if (event.key === 'ArrowDown') {
-        tween.to({ posicion_en_y: toda_la_avioneta.position.y - 1 }, 400);
+        tween.to({ posicion_en_y: toda_la_avioneta.position.y - 5 }, 400);
         tween.start();
 
         tween_rotation.to({ rotacion_en_z: Math.PI * -(1 / 8) }, 200); // 👈 Personaliza el giro
@@ -330,8 +328,6 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
-
-        console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
 
       }
 
@@ -392,8 +388,6 @@
     });
 
 
-
-
     // ☁☁☁☁ NUBES ☁☁☁☁
     //Creando un nube
     let geometry_nube = new THREE.SphereGeometry(1, 13, 8);
@@ -425,12 +419,13 @@
     //Grupo de muchas nubes
     let grupo_de_nubes = new THREE.Group();
 
+
     //Variables del random
     const random_min = -8;
     const random_max = 8;
 
     //Bucle que genera el conjunto de 10 nubes
-    for (let iteracion = 0; iteracion < 80; iteracion++) { //👈 Ciclo for, que generará 10 nubes
+    for (let iteracion = 0; iteracion < 15; iteracion++) { //👈 Ciclo for, que generará 10 nubes
 
       let nube = grupo_nube.clone(); //clonando el grupo, añadiendo a la variable nube
       let nube_2 = grupo_nube.clone();
@@ -440,10 +435,9 @@
       nube.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
       nube.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) + 55;
 
-      nube_2.position.x = iteracion * 20 + 10;
+      nube_2.position.x = iteracion * 20;
       nube_2.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
       nube_2.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) - 55;
-
 
       //Añadiendo nueva nube al grupo de nubes
       grupo_de_nubes.add(nube, nube_2);
@@ -511,50 +505,50 @@
     /*================================ INTERFAZ ==============================*/
     const elemento_distanciaX = document.getElementById('distanciaX'); // busca el elemento con id 'distanciaX' y lo asigna a la variable 'span'
     const elemento_altura = document.getElementById('altura');
-    // const aviso_izq = document.getElementById('aviso_izq'); // 👈👈👈
-    // const aviso_der = document.getElementById('aviso_der'); // 👈👈👈
-    // const aviso_piso = document.getElementById('aviso_piso'); // 👈👈👈
+    const aviso_izq = document.getElementById('aviso_izq'); // 👈👈👈
+    const aviso_der = document.getElementById('aviso_der'); // 👈👈👈
+    const aviso_piso = document.getElementById('aviso_piso'); // 👈👈👈
     const elemento_combustible = document.getElementById('combustible');
-    // Definición de la función "limite_izquierdo"
-    // function limite_izquierdo() {
-    //   // Se comprueba si la posición en el eje z de "toda_la_avioneta" es menor o igual que la posición en el eje z de "limite_mesh_izquierdo"
-    //   if (toda_la_avioneta.position.z <= limite_mesh_izquierdo.position.z) {
-    //     limite_mesh_izquierdo.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
-    //     limite_mesh_izquierdo.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
-    //     aviso_izq.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_izq"
-    //   } else {
-    //     limite_mesh_izquierdo.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
-    //     aviso_izq.textContent = null; // Se elimina el mensaje de aviso
-    //     limite_mesh_izquierdo.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
-    //   }
-    // }
+    //    Definición de la función "limite_izquierdo"
+    function limite_izquierdo() {
+      // Se comprueba si la posición en el eje z de "toda_la_avioneta" es menor o igual que la posición en el eje z de "limite_mesh_izquierdo"
+      if (toda_la_avioneta.position.z <= limite_mesh_izquierdo.position.z) {
+        limite_mesh_izquierdo.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
+        limite_mesh_izquierdo.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
+        aviso_izq.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_izq"
+      } else {
+        limite_mesh_izquierdo.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
+        aviso_izq.textContent = null; // Se elimina el mensaje de aviso
+        limite_mesh_izquierdo.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
+      }
+    }
 
-    // // Definición de la función "limite_derecho"
-    // function limite_derecho() {
-    //   // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
-    //   if (toda_la_avioneta.position.z >= limite_mesh_derecho.position.z) {
-    //     limite_mesh_derecho.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
-    //     limite_mesh_derecho.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
-    //     aviso_der.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
-    //   } else {
-    //     limite_mesh_derecho.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
-    //     aviso_der.textContent = null; // Se elimina el mensaje de aviso
-    //     limite_mesh_derecho.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
-    //   }
-    // }
+    // Definición de la función "limite_derecho"
+    function limite_derecho() {
+      // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
+      if (toda_la_avioneta.position.z >= limite_mesh_derecho.position.z) {
+        limite_mesh_derecho.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
+        limite_mesh_derecho.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
+        aviso_der.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
+      } else {
+        limite_mesh_derecho.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
+        aviso_der.textContent = null; // Se elimina el mensaje de aviso
+        limite_mesh_derecho.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
+      }
+    }
 
-    // function limite_piso() {
-    //   // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
-    //   if (toda_la_avioneta.position.y <= limite_mesh_piso.position.y) {
-    //     limite_mesh_piso.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
-    //     limite_mesh_piso.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
-    //     aviso_piso.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
-    //   } else {
-    //     limite_mesh_piso.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
-    //     aviso_piso.textContent = null; // Se elimina el mensaje de aviso
-    //     limite_mesh_piso.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
-    //   }
-    // }
+    function limite_piso() {
+      // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
+      if (toda_la_avioneta.position.y <= limite_mesh_piso.position.y) {
+        limite_mesh_piso.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
+        limite_mesh_piso.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
+        aviso_piso.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
+      } else {
+        limite_mesh_piso.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
+        aviso_piso.textContent = null; // Se elimina el mensaje de aviso
+        limite_mesh_piso.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
+      }
+    }
 
     /*================================ GRAVEDAD ==============================*/
     var gravedad = 0;
@@ -562,10 +556,94 @@
       gravedad = gravedad - 0.01;
     }
 
-    var caja = new THREE.Mesh(limite_geometry, limite_material);
-    caja.position.set(0, 0, 0);
-    caja.scale.set(2, 2, 2);
-    scene.add(caja);
+    //GASOLINA
+    var gasolina = new THREE.BoxGeometry(.1, 2, 2);
+    var texture_gasolina = new THREE.TextureLoader().load('./img/gasolina.png');
+    var combus_material = new THREE.MeshBasicMaterial({
+      map: texture_gasolina,
+      wireframe: false,
+      transparent: true,
+      opacity: 1,
+    });
+    var caja_gasolina = new THREE.Mesh(gasolina, combus_material);
+    caja_gasolina.scale.set(2, 2, 2);
+    scene.add(caja_gasolina);
+    caja_gasolina.position.set(5, 2, 3);
+
+    // Definimos los límites
+    var limites = {
+      xMin: caja_gasolina.position.x - 5,
+      xMax: caja_gasolina.position.x + 5,
+      yMin: caja_gasolina.position.y - 5,
+      yMax: caja_gasolina.position.y + 5,
+      zMin: caja_gasolina.position.z - 5,
+      zMax: caja_gasolina.position.z + 5,
+    };
+
+    // Variable para realizar el seguimiento del estado de paso del objeto
+    var objetoHaPasado = false;
+
+    // Obtenemos la posición actual de la esferita
+    var posicionObjeto = toda_la_avioneta.position;
+
+    function dentroCaja() {
+      // Comprobamos si la posición del objeto está dentro de los límites y si el objeto no ha pasado previamente
+      if (
+        posicionObjeto.x >= limites.xMin &&
+        posicionObjeto.x <= limites.xMax &&
+        posicionObjeto.y >= limites.yMin &&
+        posicionObjeto.y <= limites.yMax &&
+        posicionObjeto.z >= limites.zMin &&
+        posicionObjeto.z <= limites.zMax &&
+        !objetoHaPasado) {
+        // Cambiamos la opacidad del material a 0.6 (60%)
+        caja_gasolina.material.opacity = 0.6;
+        console.log('YA PASE');
+        // Mostramos un aviso indicando que el objeto ha pasado por la caja_gasolin
+        // Establecemos el estado de paso del objeto como verdadero para que no se despliegue la función nuevamente
+        objetoHaPasado = true;
+        combustible = 10;
+      } else {
+        // El objeto está fuera de los límites de la caja_gasolina o ya ha pasado
+
+        // Restauramos el color del material de la caja_gasolina a blanco
+        caja_gasolina.material.color = new THREE.Color(0xffffff);
+
+        // Restauramos la opacidad del material a 0.8 (80%)
+        caja_gasolina.material.opacity = 0.8;
+      }
+    }
+
+    //Meta
+    var meta = new THREE.BoxGeometry(.1, 20, 20);
+    var texture_meta = new THREE.TextureLoader().load('./img/meta.png');
+    var meta_material = new THREE.MeshBasicMaterial({
+      map: texture_meta,
+      wireframe: false,
+      transparent: true,
+      opacity: 1,
+    });
+    var meta_llegada = new THREE.Mesh(meta, meta_material);
+    meta_llegada.position.set(300, 2, 0);
+
+    scene.add(meta_llegada);
+
+    //Bucle que genera el conjunto de gasolinas
+    let grupo_de_gasolinas = new THREE.Group();
+    for (let iteracion = 0; iteracion < 6; iteracion++) { //👈 Ciclo for, que generará 10 nubes
+
+      let caja_gasolina_2 = caja_gasolina.clone(); //clonando el grupo, añadiendo a la variable nube
+
+      //Cambiando la posición de la nube generada
+      caja_gasolina_2.position.x = iteracion * 50; // Esta es la separación entre cada nube: la iteración
+      caja_gasolina_2.position.y = Math.floor(Math.random() * (random_max - random_min + 5));
+      caja_gasolina_2.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
+      //Añadiendo nueva nube al grupo de nubes
+      grupo_de_gasolinas.add(caja_gasolina_2);
+
+    }
+
+    scene.add(grupo_de_gasolinas);
 
     //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
     requestAnimationFrame(render);
@@ -591,9 +669,9 @@
       elemento_distanciaX.textContent = toda_la_avioneta.position.x; // establece el contenido del elemento 'span' como el valor de la posición X de un objeto llamado 'toda_la_avioneta'
       elemento_altura.textContent = toda_la_avioneta.position.y;
 
-      // limite_izquierdo();
-      // limite_derecho();
-      // limite_piso();
+      limite_izquierdo();
+      limite_derecho();
+      limite_piso();
 
       //Llamado para renderizar y volver a llamar a la misma función (render)
       renderer.render(scene, camera);
@@ -601,6 +679,9 @@
 
       gravity();
       elemento_combustible.textContent = combustible;
+
+      seguir_avioneta_camara()
+      dentroCaja();
 
     }
   </script>
