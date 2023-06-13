@@ -83,503 +83,527 @@
   <div id="interfaz">
     <div class="miDiv">Distancia en x: <span id="distanciaX"></span></div>
     <div class="miDiv">Altura: <span id="altura"></span></div>
-    <div class="miDivC"><span id="aviso_izq"></span></div>
-    <div class="miDivC"><span id="aviso_der"></span>
-      <div class="miDivC"><span id="aviso_piso"></span></div>
-    </div>
-
-    <!-- Aquí va todo el código de three.js -->
-    <script type="module">
-      // 📚  Librerías importadas para hacer funcionar three.js y el OrbitControls
-      import * as THREE from './js/three.module.js';
-      import { OrbitControls } from './js/OrbitControls.js';
-
-      import { TWEEN } from './js/tween.module.min.js'; //👈 Importar librería de TWEEN.
+    <div>Combustible: <span id="combustible"></span></div>
+    <!-- <div class="miDivC"><span id="aviso_izq"></span></div>
+    <div class="miDivC"><span id="aviso_der"></span></div>
+    <div class="miDivC"><span id="aviso_piso"></span></div> -->
+  </div>
 
 
-      // ⚙️ Renderer
-      var renderer = new THREE.WebGLRenderer({
-        canvas: document.getElementById('myCanvas'),
-        antialias: true,
-      });
-      renderer.setPixelRatio(window.decivePixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
+  <!-- Aquí va todo el código de three.js -->
+  <script type="module">
+    // 📚  Librerías importadas para hacer funcionar three.js y el OrbitControls
+    import * as THREE from './js/three.module.js';
+    import { OrbitControls } from './js/OrbitControls.js';
 
-      // 🎬 Creando nueva escena
-      var scene = new THREE.Scene();
-
-      // ⛅ Textura del entorno o domo
-      var loader = new THREE.TextureLoader();
-      loader.load('./img/textura.jpg', function (texture) { // 👈 Reemplaza la ruta por la ruta y nombre de tu textura
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        scene.environment = texture;
-        scene.background = texture;
-        scene.background = texture;
-      });
-
-      // 📷 Creando nueva cámara de perspectiva
-      var camera = new THREE.PerspectiveCamera(
-        70,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        500
-      );
-      scene.add(camera);
-
-      // 💻 Evento para redimensionar el 'canvas'//------------------------------------------
-      // 📐 Sizes: Objeto donde se toman los tamaños interiores 'inner' de la ventana.
-      const sizes = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-
-      // 🖼 Tomando el 'canvas' mediante el id 'myCanvas' de nuestro HTML para cambiar sus dimensiones
-      const canvas = document.getElementById('myCanvas');
-
-      // 🎉 Evento que se ejecutará al redimensionar 'resize' nuestra ventana
-      window.addEventListener('resize', () => {
-        // Actualizando los valores del objeto 'sizes' con las medidas internas de la ventana
-        sizes.width = window.innerWidth;
-        sizes.height = window.innerHeight;
-
-        // Actualización de los valores en la cámara como la relación-aspecto y la matriz de proyección.
-        camera.aspect = sizes.width / sizes.height;
-        camera.updateProjectionMatrix();
-
-        // Aplicando al render el nuevo tamaño del 'viewport'
-        renderer.setSize(sizes.width, sizes.height);
-      });
-
-      // // 🎮 Añadiendo los OrbitControls
-      // var controls = new OrbitControls(camera, renderer.domElement);
-      // controls.enableDamping = true;
-      // controls.dampingFactor = 0.05;
-
-      // Añadiendo GridHelper
-      const size = 10000;
-      const divisions = 1000;
-      const gridHelper = new THREE.GridHelper(size, divisions);
-      scene.add(gridHelper); //Si lo quitas explota todo
-
-      // 🛩️🛩️🛩️🛩️ Avioneta 🛩️🛩️🛩️🛩️
-
-      // Elementos
-      const geometry = new THREE.SphereGeometry(1, 32, 16);
-      const material = new THREE.MeshLambertMaterial({ color: 0x34849E });
-      const fuselaje = new THREE.Mesh(geometry, material);
-      fuselaje.scale.x = 2;
-      scene.add(fuselaje);
-
-      const alas = new THREE.Mesh(geometry, material);
-      alas.scale.y = 0.3;
-      alas.scale.z = 4;
-      alas.position.y = 0.5;
-      scene.add(alas);
-
-      const estabilizador_vertical = new THREE.Mesh(geometry, material);
-      estabilizador_vertical.scale.x = 0.5;
-      estabilizador_vertical.scale.y = 0.8;
-      estabilizador_vertical.scale.z = 0.2;
-      estabilizador_vertical.position.x = -1.5;
-      estabilizador_vertical.position.y = 0.5;
-      scene.add(estabilizador_vertical);
-
-      const estabilizador_horizontal = new THREE.Mesh(geometry, material);
-      estabilizador_horizontal.scale.x = 0.4;
-      estabilizador_horizontal.scale.y = 0.8;
-      estabilizador_horizontal.scale.z = 0.1;
-      estabilizador_horizontal.rotation.x = Math.PI * 0.5;
-      estabilizador_horizontal.rotation.y = Math.PI * 1;
-      estabilizador_horizontal.position.y = 1;
-      estabilizador_horizontal.position.x = -1.5;
-      scene.add(estabilizador_horizontal);
-
-      const helice1 = new THREE.Mesh(geometry, material);
-      helice1.position.x = 2;
-      helice1.scale.x = 0.1;
-      helice1.scale.y = 0.8;
-      helice1.scale.z = 0.2;
-      scene.add(helice1);
-
-      const helice2 = helice1.clone();
-      helice2.position.x = 2;
-      helice2.rotation.x = Math.PI * 0.5;
-      scene.add(helice2);
-
-      //Grupo de helices 
-      var grupo_de_helices = new THREE.Group();
-
-      // Añadiendo cada hélice al grupo
-      grupo_de_helices.add(helice1, helice2);
-
-      //Añadiendo el grupo a la escena
-      scene.add(grupo_de_helices);
-
-      var toda_la_avioneta = new THREE.Group();
-      toda_la_avioneta.add(
-        fuselaje,
-        alas,
-        estabilizador_horizontal,
-        estabilizador_vertical,
-        grupo_de_helices,
-        Luces
-      );
-      scene.add(toda_la_avioneta);
-
-      //🔦 Luces
-      var light01 = new THREE.PointLight(0xffffff, 1);
-      light01.position.set(-10, 0, 10);
-      scene.add(light01);
-
-      var light02 = new THREE.PointLight(0xffffff, 1);
-      light02.position.set(100, -10, 30);
-      scene.add(light02);
-
-      var Luces = new THREE.Group();
-      Luces.add(
-        light01,
-        light02
-      );
-      scene.add(Luces);
-
-      //Settings de la cámara
-      camera.position.set(0, 0, 10);
-
-      //👇 Código para animar la avioneta arriba abajo
-
-      // ⌚ Reloj three.js
-      var clock = new THREE.Clock();
-
-      // 👟 Movimiento sinusoidal de la avioneta
-      var velocidad = 4, amplitud = 0.5;
-
-      // Código de la función
+    import { TWEEN } from './js/tween.module.min.js'; //👈 Importar librería de TWEEN.
 
 
-      // Declaración de la función
-      function avioneta_movimiento_sin() {
-        toda_la_avioneta.position.y = toda_la_avioneta.position.y + Math.sin(clock.getElapsedTime() * velocidad) * amplitud;
+    // ⚙️ Renderer
+    var renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById('myCanvas'),
+      antialias: true,
+    });
+    renderer.setPixelRatio(window.decivePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // 🎬 Creando nueva escena
+    var scene = new THREE.Scene();
+
+    // ⛅ Textura del entorno o domo
+    var loader = new THREE.TextureLoader();
+    loader.load('./img/textura.jpg', function (texture) { // 👈 Reemplaza la ruta por la ruta y nombre de tu textura
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      scene.environment = texture;
+      scene.background = texture;
+      scene.background = texture;
+    });
+
+    // 📷 Creando nueva cámara de perspectiva
+    var camera = new THREE.PerspectiveCamera(
+      70,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      500
+    );
+    scene.add(camera);
+
+    // 💻 Evento para redimensionar el 'canvas'//------------------------------------------
+    // 📐 Sizes: Objeto donde se toman los tamaños interiores 'inner' de la ventana.
+    const sizes = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+
+    // 🖼 Tomando el 'canvas' mediante el id 'myCanvas' de nuestro HTML para cambiar sus dimensiones
+    const canvas = document.getElementById('myCanvas');
+
+    // 🎉 Evento que se ejecutará al redimensionar 'resize' nuestra ventana
+    window.addEventListener('resize', () => {
+      // Actualizando los valores del objeto 'sizes' con las medidas internas de la ventana
+      sizes.width = window.innerWidth;
+      sizes.height = window.innerHeight;
+
+      // Actualización de los valores en la cámara como la relación-aspecto y la matriz de proyección.
+      camera.aspect = sizes.width / sizes.height;
+      camera.updateProjectionMatrix();
+
+      // Aplicando al render el nuevo tamaño del 'viewport'
+      renderer.setSize(sizes.width, sizes.height);
+    });
+
+    // // 🎮 Añadiendo los OrbitControls
+    // var controls = new OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.05;
+
+    // Añadiendo GridHelper
+    const size = 10000;
+    const divisions = 1000;
+    const gridHelper = new THREE.GridHelper(size, divisions);
+    scene.add(gridHelper); //Si lo quitas explota todo
+
+    // 🛩️🛩️🛩️🛩️ Avioneta 🛩️🛩️🛩️🛩️
+
+    // Elementos
+    const geometry = new THREE.SphereGeometry(1, 32, 16);
+    const material = new THREE.MeshLambertMaterial({ color: 0x34849E });
+    const fuselaje = new THREE.Mesh(geometry, material);
+    fuselaje.scale.x = 2;
+    scene.add(fuselaje);
+
+    const alas = new THREE.Mesh(geometry, material);
+    alas.scale.y = 0.3;
+    alas.scale.z = 4;
+    alas.position.y = 0.5;
+    scene.add(alas);
+
+    const estabilizador_vertical = new THREE.Mesh(geometry, material);
+    estabilizador_vertical.scale.x = 0.5;
+    estabilizador_vertical.scale.y = 0.8;
+    estabilizador_vertical.scale.z = 0.2;
+    estabilizador_vertical.position.x = -1.5;
+    estabilizador_vertical.position.y = 0.5;
+    scene.add(estabilizador_vertical);
+
+    const estabilizador_horizontal = new THREE.Mesh(geometry, material);
+    estabilizador_horizontal.scale.x = 0.4;
+    estabilizador_horizontal.scale.y = 0.8;
+    estabilizador_horizontal.scale.z = 0.1;
+    estabilizador_horizontal.rotation.x = Math.PI * 0.5;
+    estabilizador_horizontal.rotation.y = Math.PI * 1;
+    estabilizador_horizontal.position.y = 1;
+    estabilizador_horizontal.position.x = -1.5;
+    scene.add(estabilizador_horizontal);
+
+    const helice1 = new THREE.Mesh(geometry, material);
+    helice1.position.x = 2;
+    helice1.scale.x = 0.1;
+    helice1.scale.y = 0.8;
+    helice1.scale.z = 0.2;
+    scene.add(helice1);
+
+    const helice2 = helice1.clone();
+    helice2.position.x = 2;
+    helice2.rotation.x = Math.PI * 0.5;
+    scene.add(helice2);
+
+    //Grupo de helices 
+    var grupo_de_helices = new THREE.Group();
+
+    // Añadiendo cada hélice al grupo
+    grupo_de_helices.add(helice1, helice2);
+
+    //Añadiendo el grupo a la escena
+    scene.add(grupo_de_helices);
+
+    var toda_la_avioneta = new THREE.Group();
+    toda_la_avioneta.add(
+      fuselaje,
+      alas,
+      estabilizador_horizontal,
+      estabilizador_vertical,
+      grupo_de_helices,
+      Luces
+    );
+    scene.add(toda_la_avioneta);
+
+    //🔦 Luces
+    var light01 = new THREE.PointLight(0xffffff, 1);
+    light01.position.set(-10, 0, 10);
+    scene.add(light01);
+
+    var light02 = new THREE.PointLight(0xffffff, 1);
+    light02.position.set(100, -10, 30);
+    scene.add(light02);
+
+    var Luces = new THREE.Group();
+    Luces.add(
+      light01,
+      light02
+    );
+    scene.add(Luces);
+
+    //Settings de la cámara
+    camera.position.set(0, 0, 10);
+
+    //👇 Código para animar la avioneta arriba abajo
+
+    // ⌚ Reloj three.js
+    var clock = new THREE.Clock();
+
+    // 👟 Movimiento sinusoidal de la avioneta
+    var velocidad = 4, amplitud = 0.5;
+
+    // Código de la función
+
+
+    // Declaración de la función
+    function avioneta_movimiento_sin() {
+      toda_la_avioneta.position.y = toda_la_avioneta.position.y + Math.sin(clock.getElapsedTime() * velocidad) * amplitud;
+    }
+
+    // 🔮 - - - - - - Magia del tweening - - - - - -
+    // Objeto de posiciones 
+    var posiciones_originales = {
+      posicion_en_x: 0,
+      posicion_en_y: 0,
+      posicion_en_z: 0,
+      rotacion_en_x: 0, // 👈 Nuevas propiedades para rotar el objeto.
+      rotacion_en_z: 0, // 👈 
+    };
+
+    var nuevas_posiciones = {
+      posicion_en_x: 20,
+      posicion_en_y: 4,
+      posicion_en_z: 0,
+    };
+
+    //Objeto tween
+    var tween = new TWEEN.Tween(posiciones_originales);
+    // tween.repeat(Infinity)
+    var tween_rotation = new TWEEN.Tween(posiciones_originales); //👈 Nuevo objeto 'tween'
+
+
+    //Función magia_tweening() para inicializar el interpolado
+    function magia_tweening() {
+      tween.to(nuevas_posiciones, 2000);
+      tween.start();
+    }
+
+    magia_tweening();
+
+    // Posición de cámara
+    camera.position.set(-10, 4, 0);
+
+    // 🎮🎮🎮 Interacción  🎮🎮🎮
+    var subir = 0;
+    var combustible = 10;
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowUp') {
+        // tween.to({ posicion_en_y: toda_la_avioneta.position.y + 1 }, 400);
+        // tween.start();
+
+        tween_rotation.to({ rotacion_en_z: Math.PI * (1 / 8) }, 200); // 👈 Personaliza el giro
+        tween_rotation.repeat(1);
+        tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
+        tween_rotation.yoyo(true);
+        tween_rotation.start();
+
+        if (combustible > 0) {
+          combustible -= 0.01;
+          subir += 0.07;
+        }
+
+        console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
+
       }
+    });
 
-      // 🔮 - - - - - - Magia del tweening - - - - - -
-      // Objeto de posiciones 
-      var posiciones_originales = {
-        posicion_en_x: 0,
-        posicion_en_y: 0,
-        posicion_en_z: 0,
-        rotacion_en_x: 0, // 👈 Nuevas propiedades para rotar el objeto.
-        rotacion_en_z: 0, // 👈 
-      };
-
-      var nuevas_posiciones = {
-        posicion_en_x: 20,
-        posicion_en_y: 4,
-        posicion_en_z: 0,
-      };
-
-      //Objeto tween
-      var tween = new TWEEN.Tween(posiciones_originales);
-      // tween.repeat(Infinity)
-      var tween_rotation = new TWEEN.Tween(posiciones_originales); //👈 Nuevo objeto 'tween'
-
-
-      //Función magia_tweening() para inicializar el interpolado
-      function magia_tweening() {
-        tween.to(nuevas_posiciones, 2000);
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowDown') {
+        tween.to({ posicion_en_y: toda_la_avioneta.position.y - 1 }, 400);
         tween.start();
-      }
 
-      magia_tweening();
+        tween_rotation.to({ rotacion_en_z: Math.PI * -(1 / 8) }, 200); // 👈 Personaliza el giro
+        tween_rotation.repeat(1);
+        tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
+        tween_rotation.yoyo(true);
+        tween_rotation.start();
 
-      // Posición de cámara
-      camera.position.set(-10, 4, 0);
-
-      // 🎮🎮🎮 Interacción  🎮🎮🎮
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'ArrowUp') {
-          tween.to({ posicion_en_y: toda_la_avioneta.position.y + 1 }, 400);
-          tween.start();
-
-          tween_rotation.to({ rotacion_en_z: Math.PI * (1 / 8) }, 200); // 👈 Personaliza el giro
-          tween_rotation.repeat(1);
-          tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-          tween_rotation.yoyo(true);
-          tween_rotation.start();
-
-          console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
-
-        }
-      });
-
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'ArrowDown') {
-          tween.to({ posicion_en_y: toda_la_avioneta.position.y - 1 }, 400);
-          tween.start();
-
-          tween_rotation.to({ rotacion_en_z: Math.PI * -(1 / 8) }, 200); // 👈 Personaliza el giro
-          tween_rotation.repeat(1);
-          tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-          tween_rotation.yoyo(true);
-          tween_rotation.start();
-
-          console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
-
-        }
-
-        if (event.key === 'ArrowLeft') {
-          tween.to({ posicion_en_z: toda_la_avioneta.position.z - 1 }, 400);
-          tween.start();
-
-          tween_rotation.to({ rotacion_en_x: Math.PI * -(1 / 8) }, 200); // 👈 Personaliza el giro
-          tween_rotation.repeat(1);
-          tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-          tween_rotation.yoyo(true);
-          tween_rotation.start();
-
-
-        }
-
-        if (event.key === 'ArrowRight') {
-          tween.to({ posicion_en_z: toda_la_avioneta.position.z + 1 }, 400);
-          tween.start();
-
-          tween_rotation.to({ rotacion_en_x: Math.PI * (1 / 8) }, 200); // 👈 Personaliza el giro
-          tween_rotation.repeat(1);
-          tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-          tween_rotation.yoyo(true);
-          tween_rotation.start();
-        }
-
-        if (event.key === 'Backspace') {
-          tween.to(
-            {
-              posicion_en_x: 0,
-              posicion_en_y: 0,
-              posicion_en_z: 0,
-            }
-            , 400);
-          tween.start();
-
-          tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-
-        }
-
-        if (event.key === 'Enter') {
-          magia_tweening();
-        }
-
-        if (event.key === ' ') {
-          tween.to({ posicion_en_y: toda_la_avioneta.position.y - 2 }, 400);
-          tween.start();
-
-          tween_rotation.to({ rotacion_en_x: Math.PI * 2 }, 500); // 👈 Personaliza el giro
-          tween_rotation.repeat(1);
-          tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-          tween_rotation.yoyo(true);
-          tween_rotation.start();
-
-        }
-
-      });
-
-
-
-
-      // ☁☁☁☁ NUBES ☁☁☁☁
-      //Creando un nube
-      let geometry_nube = new THREE.SphereGeometry(1, 13, 8);
-      let material_nube = new THREE.MeshBasicMaterial({
-        color: 0xf1f1f1,
-        transparent: true,
-        opacity: 0.5,
-        wireframe: false,
-      });
-      let mesh1_nube = new THREE.Mesh(geometry_nube, material_nube);
-      let mesh2_nube = new THREE.Mesh(geometry_nube, material_nube);
-      let mesh3_nube = new THREE.Mesh(geometry_nube, material_nube);
-
-      mesh1_nube.position.set(0, 0, -1);
-      mesh2_nube.position.set(0, 0.2, -0);
-      mesh3_nube.position.set(0, 0, 1);
-
-      //Creando el grupo que conforma 1 nube
-      let grupo_nube = new THREE.Group();
-
-      //Añadiendo al grupo de 1 nube
-      grupo_nube.add(mesh1_nube);
-      grupo_nube.add(mesh2_nube);
-      grupo_nube.add(mesh3_nube);
-
-      //Escalando el grupo de 1 nube
-      grupo_nube.scale.set(10, 10, 10);
-
-      //Grupo de muchas nubes
-      let grupo_de_nubes = new THREE.Group();
-
-      //Variables del random
-      const random_min = -8;
-      const random_max = 8;
-
-      //Bucle que genera el conjunto de 10 nubes
-      for (let iteracion = 0; iteracion < 80; iteracion++) { //👈 Ciclo for, que generará 10 nubes
-
-        let nube = grupo_nube.clone(); //clonando el grupo, añadiendo a la variable nube
-        let nube_2 = grupo_nube.clone();
-
-        //Cambiando la posición de la nube generada
-        nube.position.x = iteracion * 20; // Esta es la separación entre cada nube: la iteración
-        nube.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
-        nube.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) + 55;
-
-        nube_2.position.x = iteracion * 20 + 10;
-        nube_2.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
-        nube_2.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) - 55;
-
-
-        //Añadiendo nueva nube al grupo de nubes
-        grupo_de_nubes.add(nube, nube_2);
+        console.log('Altura de la avioneta: ' + toda_la_avioneta.position.y); //👈👈 Muestra la altura por consola
 
       }
 
-      grupo_de_nubes.position.y = -15; //Colocando el grupo de nubes debajo del nivel de suelo.
+      if (event.key === 'ArrowLeft') {
+        tween.to({ posicion_en_z: toda_la_avioneta.position.z - 1 }, 400);
+        tween.start();
 
-      scene.add(grupo_de_nubes);
+        tween_rotation.to({ rotacion_en_x: Math.PI * -(1 / 8) }, 200); // 👈 Personaliza el giro
+        tween_rotation.repeat(1);
+        tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
+        tween_rotation.yoyo(true);
+        tween_rotation.start();
 
-      /*================================ Movimiento de la cámara ==============================*/
-      var aceleracion = 0;
-      var factor_velocidad_hacia_adelante = 0.1;
 
-      function seguir_avioneta_camara() {
-        camera.position.x = toda_la_avioneta.position.x - 20;
-        camera.position.y = toda_la_avioneta.position.y + 3;
-        camera.position.z = toda_la_avioneta.position.z;
       }
 
-      function desplazamiento_avioneta() {
-        toda_la_avioneta.position.x += factor_velocidad_hacia_adelante;
+      if (event.key === 'ArrowRight') {
+        tween.to({ posicion_en_z: toda_la_avioneta.position.z + 1 }, 400);
+        tween.start();
+
+        tween_rotation.to({ rotacion_en_x: Math.PI * (1 / 8) }, 200); // 👈 Personaliza el giro
+        tween_rotation.repeat(1);
+        tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
+        tween_rotation.yoyo(true);
+        tween_rotation.start();
       }
 
-      camera.lookAt(1, 0, 0)
+      if (event.key === 'Backspace') {
+        tween.to(
+          {
+            posicion_en_x: 0,
+            posicion_en_y: 0,
+            posicion_en_z: 0,
+          }
+          , 400);
+        tween.start();
 
-      /*========================================================================*/
-      // Límite
+        tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
 
-      var limite_geometry = new THREE.PlaneGeometry(15, 5, 1, 1);
-      var limite_geometry_1 = new THREE.PlaneGeometry(45, 45, 1, 1);
-      var limite_material = new THREE.MeshBasicMaterial({
-        color: 'red',
-        wireframe: false,
-        transparent: true,
-        opacity: 1,
-        side: THREE.DoubleSide,
-      });
-      var limite_mesh_derecho = new THREE.Mesh(
-        limite_geometry,
-        limite_material
-      );
-      limite_mesh_derecho.position.set(0, 0, 9.5);
-      limite_mesh_derecho.scale.set(100, 100, 1);
-      scene.add(limite_mesh_derecho);
+      }
 
-      var limite_mesh_izquierdo = new THREE.Mesh(
-        limite_geometry,
-        limite_material.clone() //👁‍🗨 Ojo, aquí se clona el material para poder modificarlo aparte en la función
-      );
-      limite_mesh_izquierdo.position.set(0, 0, -9.5);
-      limite_mesh_izquierdo.scale.set(100, 100, 1);
-      scene.add(limite_mesh_izquierdo);
+      if (event.key === 'Enter') {
+        magia_tweening();
+      }
 
-      var limite_mesh_piso = new THREE.Mesh(
-        limite_geometry,
-        limite_material.clone()
-      );
-      limite_mesh_piso.position.set(0, -3, 0);
-      limite_mesh_piso.scale.set(100, 100, 1);
-      limite_mesh_piso.rotation.x = Math.PI / 2;
-      scene.add(limite_mesh_piso);
+      if (event.key === ' ') {
+        tween.to({ posicion_en_y: toda_la_avioneta.position.y - 2 }, 400);
+        tween.start();
 
-      /*================================ Límites ==============================*/
-      /*================================ INTERFAZ ==============================*/
-      const elemento_distanciaX = document.getElementById('distanciaX'); // busca el elemento con id 'distanciaX' y lo asigna a la variable 'span'
+        tween_rotation.to({ rotacion_en_x: Math.PI * 2 }, 500); // 👈 Personaliza el giro
+        tween_rotation.repeat(1);
+        tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
+        tween_rotation.yoyo(true);
+        tween_rotation.start();
+
+      }
+
+    });
+
+
+
+
+    // ☁☁☁☁ NUBES ☁☁☁☁
+    //Creando un nube
+    let geometry_nube = new THREE.SphereGeometry(1, 13, 8);
+    let material_nube = new THREE.MeshBasicMaterial({
+      color: 0xf1f1f1,
+      transparent: true,
+      opacity: 0.5,
+      wireframe: false,
+    });
+    let mesh1_nube = new THREE.Mesh(geometry_nube, material_nube);
+    let mesh2_nube = new THREE.Mesh(geometry_nube, material_nube);
+    let mesh3_nube = new THREE.Mesh(geometry_nube, material_nube);
+
+    mesh1_nube.position.set(0, 0, -1);
+    mesh2_nube.position.set(0, 0.2, -0);
+    mesh3_nube.position.set(0, 0, 1);
+
+    //Creando el grupo que conforma 1 nube
+    let grupo_nube = new THREE.Group();
+
+    //Añadiendo al grupo de 1 nube
+    grupo_nube.add(mesh1_nube);
+    grupo_nube.add(mesh2_nube);
+    grupo_nube.add(mesh3_nube);
+
+    //Escalando el grupo de 1 nube
+    grupo_nube.scale.set(10, 10, 10);
+
+    //Grupo de muchas nubes
+    let grupo_de_nubes = new THREE.Group();
+
+    //Variables del random
+    const random_min = -8;
+    const random_max = 8;
+
+    //Bucle que genera el conjunto de 10 nubes
+    for (let iteracion = 0; iteracion < 80; iteracion++) { //👈 Ciclo for, que generará 10 nubes
+
+      let nube = grupo_nube.clone(); //clonando el grupo, añadiendo a la variable nube
+      let nube_2 = grupo_nube.clone();
+
+      //Cambiando la posición de la nube generada
+      nube.position.x = iteracion * 20; // Esta es la separación entre cada nube: la iteración
+      nube.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
+      nube.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) + 55;
+
+      nube_2.position.x = iteracion * 20 + 10;
+      nube_2.position.y = Math.floor(Math.random() * (random_max - random_min + 1)) + random_min;
+      nube_2.position.z = Math.floor(Math.random() * (random_max - random_min + 1)) - 55;
+
+
+      //Añadiendo nueva nube al grupo de nubes
+      grupo_de_nubes.add(nube, nube_2);
+
+    }
+
+    grupo_de_nubes.position.y = -15; //Colocando el grupo de nubes debajo del nivel de suelo.
+
+    scene.add(grupo_de_nubes);
+
+    /*================================ Movimiento de la cámara ==============================*/
+    var aceleracion = 0;
+    var factor_velocidad_hacia_adelante = 0.1;
+
+    function seguir_avioneta_camara() {
+      camera.position.x = toda_la_avioneta.position.x - 20;
+      camera.position.y = toda_la_avioneta.position.y + 3;
+      camera.position.z = toda_la_avioneta.position.z;
+    }
+
+    function desplazamiento_avioneta() {
+      toda_la_avioneta.position.x += factor_velocidad_hacia_adelante;
+    }
+
+    camera.lookAt(1, 0, 0)
+
+    /*========================================================================*/
+    // Límite
+
+    var limite_geometry = new THREE.PlaneGeometry(15, 5, 1, 1);
+    var limite_geometry_1 = new THREE.PlaneGeometry(45, 45, 1, 1);
+    var limite_material = new THREE.MeshBasicMaterial({
+      color: 'red',
+      wireframe: false,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+    });
+    var limite_mesh_derecho = new THREE.Mesh(
+      limite_geometry,
+      limite_material
+    );
+    limite_mesh_derecho.position.set(0, 0, 9.5);
+    limite_mesh_derecho.scale.set(100, 100, 1);
+    scene.add(limite_mesh_derecho);
+
+    var limite_mesh_izquierdo = new THREE.Mesh(
+      limite_geometry,
+      limite_material.clone() //👁‍🗨 Ojo, aquí se clona el material para poder modificarlo aparte en la función
+    );
+    limite_mesh_izquierdo.position.set(0, 0, -9.5);
+    limite_mesh_izquierdo.scale.set(100, 100, 1);
+    scene.add(limite_mesh_izquierdo);
+
+    var limite_mesh_piso = new THREE.Mesh(
+      limite_geometry,
+      limite_material.clone()
+    );
+    limite_mesh_piso.position.set(0, -3, 0);
+    limite_mesh_piso.scale.set(100, 100, 1);
+    limite_mesh_piso.rotation.x = Math.PI / 2;
+    scene.add(limite_mesh_piso);
+
+    /*================================ Límites ==============================*/
+    /*================================ INTERFAZ ==============================*/
+    const elemento_distanciaX = document.getElementById('distanciaX'); // busca el elemento con id 'distanciaX' y lo asigna a la variable 'span'
+    const elemento_altura = document.getElementById('altura');
+    // const aviso_izq = document.getElementById('aviso_izq'); // 👈👈👈
+    // const aviso_der = document.getElementById('aviso_der'); // 👈👈👈
+    // const aviso_piso = document.getElementById('aviso_piso'); // 👈👈👈
+    const elemento_combustible = document.getElementById('combustible');
+    // Definición de la función "limite_izquierdo"
+    // function limite_izquierdo() {
+    //   // Se comprueba si la posición en el eje z de "toda_la_avioneta" es menor o igual que la posición en el eje z de "limite_mesh_izquierdo"
+    //   if (toda_la_avioneta.position.z <= limite_mesh_izquierdo.position.z) {
+    //     limite_mesh_izquierdo.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
+    //     limite_mesh_izquierdo.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
+    //     aviso_izq.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_izq"
+    //   } else {
+    //     limite_mesh_izquierdo.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
+    //     aviso_izq.textContent = null; // Se elimina el mensaje de aviso
+    //     limite_mesh_izquierdo.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
+    //   }
+    // }
+
+    // // Definición de la función "limite_derecho"
+    // function limite_derecho() {
+    //   // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
+    //   if (toda_la_avioneta.position.z >= limite_mesh_derecho.position.z) {
+    //     limite_mesh_derecho.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
+    //     limite_mesh_derecho.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
+    //     aviso_der.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
+    //   } else {
+    //     limite_mesh_derecho.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
+    //     aviso_der.textContent = null; // Se elimina el mensaje de aviso
+    //     limite_mesh_derecho.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
+    //   }
+    // }
+
+    // function limite_piso() {
+    //   // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
+    //   if (toda_la_avioneta.position.y <= limite_mesh_piso.position.y) {
+    //     limite_mesh_piso.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
+    //     limite_mesh_piso.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
+    //     aviso_piso.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
+    //   } else {
+    //     limite_mesh_piso.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
+    //     aviso_piso.textContent = null; // Se elimina el mensaje de aviso
+    //     limite_mesh_piso.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
+    //   }
+    // }
+
+    /*================================ GRAVEDAD ==============================*/
+    var gravedad = 0;
+    function gravity() {
+      gravedad = gravedad - 0.01;
+    }
+
+    var caja = new THREE.Mesh(limite_geometry, limite_material);
+    caja.position.set(0, 0, 0);
+    caja.scale.set(2, 2, 2);
+    scene.add(caja);
+
+    //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
+    requestAnimationFrame(render);
+    function render() {
+      //💃 Animación
+      toda_la_avioneta.position.y = posiciones_originales.posicion_en_y + gravedad + subir;
+      toda_la_avioneta.position.x = posiciones_originales.posicion_en_x;
+      toda_la_avioneta.position.z = posiciones_originales.posicion_en_z;
+
+      toda_la_avioneta.rotation.z = posiciones_originales.rotacion_en_z;
+      toda_la_avioneta.rotation.x = posiciones_originales.rotacion_en_x;
+      TWEEN.update();
+      grupo_de_helices.rotation.x += 0.2;
+      avioneta_movimiento_sin();
+      //💃 Animación
+
+      //Actualización del OrbitControls para generar la suavidad de movimiento
+      // controls.update();
+
+      const elemento_distanciaX = document.getElementById('distanciaX'); // busca el elemento con id 'distanciaX' y lo asigna a la variable 'span
       const elemento_altura = document.getElementById('altura');
-      const aviso_izq = document.getElementById('aviso_izq'); // 👈👈👈
-      const aviso_der = document.getElementById('aviso_der'); // 👈👈👈
-      const aviso_piso = document.getElementById('aviso_piso'); // 👈👈👈
-      // Definición de la función "limite_izquierdo"
-      function limite_izquierdo() {
-        // Se comprueba si la posición en el eje z de "toda_la_avioneta" es menor o igual que la posición en el eje z de "limite_mesh_izquierdo"
-        if (toda_la_avioneta.position.z <= limite_mesh_izquierdo.position.z) {
-          limite_mesh_izquierdo.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
-          limite_mesh_izquierdo.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
-          aviso_izq.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_izq"
-        } else {
-          limite_mesh_izquierdo.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
-          aviso_izq.textContent = null; // Se elimina el mensaje de aviso
-          limite_mesh_izquierdo.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
-        }
-      }
 
-      // Definición de la función "limite_derecho"
-      function limite_derecho() {
-        // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
-        if (toda_la_avioneta.position.z >= limite_mesh_derecho.position.z) {
-          limite_mesh_derecho.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
-          limite_mesh_derecho.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
-          aviso_der.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
-        } else {
-          limite_mesh_derecho.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
-          aviso_der.textContent = null; // Se elimina el mensaje de aviso
-          limite_mesh_derecho.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
-        }
-      }
+      elemento_distanciaX.textContent = toda_la_avioneta.position.x; // establece el contenido del elemento 'span' como el valor de la posición X de un objeto llamado 'toda_la_avioneta'
+      elemento_altura.textContent = toda_la_avioneta.position.y;
 
-      function limite_piso() {
-        // Se comprueba si la posición en el eje z de "toda_la_avioneta" es mayor o igual que la posición en el eje z de "limite_mesh_derecho"
-        if (toda_la_avioneta.position.y <= limite_mesh_piso.position.y) {
-          limite_mesh_piso.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
-          limite_mesh_piso.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
-          aviso_piso.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
-        } else {
-          limite_mesh_piso.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
-          aviso_piso.textContent = null; // Se elimina el mensaje de aviso
-          limite_mesh_piso.material.opacity = 0.0; // Además, se cambia la opacidad del material a 0 (0%)
-        }
-      }
+      // limite_izquierdo();
+      // limite_derecho();
+      // limite_piso();
 
-
-      //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
+      //Llamado para renderizar y volver a llamar a la misma función (render)
+      renderer.render(scene, camera);
       requestAnimationFrame(render);
-      function render() {
-        //💃 Animación
-        toda_la_avioneta.position.y = posiciones_originales.posicion_en_y;
-        toda_la_avioneta.position.x = posiciones_originales.posicion_en_x;
-        toda_la_avioneta.position.z = posiciones_originales.posicion_en_z;
 
-        toda_la_avioneta.rotation.z = posiciones_originales.rotacion_en_z;
-        toda_la_avioneta.rotation.x = posiciones_originales.rotacion_en_x;
-        TWEEN.update();
-        grupo_de_helices.rotation.x += 0.2;
-        avioneta_movimiento_sin();
-        //💃 Animación
+      gravity();
+      elemento_combustible.textContent = combustible;
 
-        //Actualización del OrbitControls para generar la suavidad de movimiento
-        // controls.update();
-
-        const elemento_distanciaX = document.getElementById('distanciaX'); // busca el elemento con id 'distanciaX' y lo asigna a la variable 'span
-        const elemento_altura = document.getElementById('altura');
-
-        elemento_distanciaX.textContent = toda_la_avioneta.position.x; // establece el contenido del elemento 'span' como el valor de la posición X de un objeto llamado 'toda_la_avioneta'
-        elemento_altura.textContent = toda_la_avioneta.position.y;
-
-        limite_izquierdo();
-        limite_derecho();
-        limite_piso();
-
-        //Llamado para renderizar y volver a llamar a la misma función (render)
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-      }
-    </script>
+    }
+  </script>
 </body>
 
 </html>
