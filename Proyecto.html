@@ -72,6 +72,13 @@
       font-size: 84px;
       color: brown;
     }
+
+    .barra {
+      height: 20%;
+      background-color: #CCC;
+      width: 0%;
+      transition: width 0.5s ease-in-out;
+    }
   </style>
 </head>
 
@@ -84,6 +91,7 @@
     <div class="miDiv">Distancia en x: <span id="distanciaX"></span></div>
     <div class="miDiv">Altura: <span id="altura"></span></div>
     <div>Combustible: <span id="combustible"></span></div>
+    <div class="barra"></div>
     <div class="miDivC"><span id="aviso_izq"></span></div>
     <div class="miDivC"><span id="aviso_der"></span></div>
     <div class="miDivC"><span id="aviso_piso"></span></div>
@@ -95,8 +103,9 @@
     // 📚  Librerías importadas para hacer funcionar three.js y el OrbitControls
     import * as THREE from './js/three.module.js';
     import { OrbitControls } from './js/OrbitControls.js';
-
     import { TWEEN } from './js/tween.module.min.js'; //👈 Importar librería de TWEEN.
+    // import { OBJLoader } from './js/OBJLoader.js';
+    // import { STLLoader } from './js/STLLoader.js';
 
 
     // ⚙️ Renderer
@@ -296,6 +305,34 @@
     // Posición de cámara
     camera.position.set(-10, 4, 0);
 
+    //abajo
+    var barra = document.querySelector('.barra');
+    if (combustible >= 7) {
+
+      barra.style.width = '100%';
+      barra.style.backgroundColor = '#105DF4';
+    }
+    else if (combustible >= 4) {
+      barra.style.width = '60%';
+      barra.style.backgroundColor = 'orange';
+      aviso_combus1.textContent = '¡Se te disminuyó la gasolina!';
+    }
+    else if (combustible < 4) {
+      barra.style.width = '30%';
+      barra.style.backgroundColor = 'red';
+      aviso_combus1.textContent = null;
+      aviso_combus2.textContent = 'Busca un tanque de gasolina';
+    }
+    if (combustible <= 0) {
+      aviso_combus1.textContent = null;
+      aviso_combus2.textContent = null;
+      aviso_combus3.textContent = 'Perdiste';
+      barra.style.width = '5%';
+      barra.style.backgroundColor = 'red';
+      factor_velocidad_hacia_adelante = 0;
+      perdiendo();
+    }
+
     // 🎮🎮🎮 Interacción  🎮🎮🎮
     var subir = 0;
     var combustible = 10;
@@ -328,9 +365,8 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
-
+        tecleando();
       }
-
       if (event.key === 'ArrowLeft') {
         tween.to({ posicion_en_z: toda_la_avioneta.position.z - 1 }, 400);
         tween.start();
@@ -340,8 +376,7 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
-
-
+        tecleando();
       }
 
       if (event.key === 'ArrowRight') {
@@ -353,6 +388,7 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
+        tecleando();
       }
 
       if (event.key === 'Backspace') {
@@ -366,11 +402,12 @@
         tween.start();
 
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
-
+        tecleando();
       }
 
       if (event.key === 'Enter') {
         magia_tweening();
+        tecleando();
       }
 
       if (event.key === ' ') {
@@ -382,7 +419,7 @@
         tween_rotation.easing(TWEEN.Easing.Quadratic.InOut); // 👈 Personaliza el estilo del 'tweening'
         tween_rotation.yoyo(true);
         tween_rotation.start();
-
+        tecleando();
       }
 
     });
@@ -516,6 +553,7 @@
         limite_mesh_izquierdo.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
         limite_mesh_izquierdo.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
         aviso_izq.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_izq"
+        mueriendo();
       } else {
         limite_mesh_izquierdo.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
         aviso_izq.textContent = null; // Se elimina el mensaje de aviso
@@ -530,6 +568,7 @@
         limite_mesh_derecho.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
         limite_mesh_derecho.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
         aviso_der.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
+        mueriendo();
       } else {
         limite_mesh_derecho.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
         aviso_der.textContent = null; // Se elimina el mensaje de aviso
@@ -543,6 +582,7 @@
         limite_mesh_piso.material.color = new THREE.Color(0xF55E51); // Si se cumple la condición anterior, se cambia el color del material a rojo
         limite_mesh_piso.material.opacity = 0.7; // Además, se cambia la opacidad del material a 0.6 (60%)
         aviso_piso.textContent = '¡Regresa al camino!'; // Se establece un mensaje de aviso en el elemento HTML con id "aviso_der"
+        mueriendo();
       } else {
         limite_mesh_piso.material.color = new THREE.Color(0xffffff); // Si no se cumple la condición anterior, se restaura el color original del material a blanco
         aviso_piso.textContent = null; // Se elimina el mensaje de aviso
@@ -603,6 +643,11 @@
         // Establecemos el estado de paso del objeto como verdadero para que no se despliegue la función nuevamente
         objetoHaPasado = true;
         combustible = 10;
+
+        gasolineando();
+
+        barra.style.width = '100%';
+        barra.style.backgroundColor = '#105DF4';
       } else {
         // El objeto está fuera de los límites de la caja_gasolina o ya ha pasado
 
@@ -644,6 +689,69 @@
     }
 
     scene.add(grupo_de_gasolinas);
+
+    ///////////////////////////////////////////////////// Sonido //////////////////////////////////////////////////////////
+    // Crear un objeto de audio
+    var tecla_audio = new Audio('./sound/tecla.mp3');
+    var lose_audio = new Audio('./sound/perdiste.mp3');
+    var mori_audio = new Audio('./sound/muerte.mp3');
+    var inicio_audio = new Audio('./sound/start.mp3');
+    var ganar_audio = new Audio('./sound/game_over.mp3');
+    var gas_audio = new Audio('./sound/gas.mp3');
+    var turbo_audio = new Audio('./sound/cohete.mp3');
+
+    // // Función para reproducir el sonido
+    function tecleando() {
+      tecla_audio.play();
+    }
+    function perdiendo() {
+      lose_audio.play();
+    }
+    function mueriendo() {
+      mori_audio.play();
+    }
+    function empezando() {
+      inicio_audio.play();
+    }
+    empezando();
+    function ganando() {
+      ganar_audio.play();
+    }
+    function gasolineando() {
+      gas_audio.play();
+    }
+    function audioestrella() {
+      turbo_audio.play();
+    }
+    function turbo() {
+      turbo_audio.pause();
+    }
+
+    ///////////////////////////////////////////////////// Trofeo //////////////////////////////////////////////////////////
+    //Agregando un archivo STL
+    // var STLloader = new STLLoader();
+
+    // // Cargando el archivo STL "trophy v4.stl" desde la ruta './assets/trophy v4.stl'
+    // STLloader.load('./assets/trophy_v4.stl', function (geometry158) {
+    //   // Creando un material de tipo MeshLambertMaterial con color blanco, brillo especular y brillo
+    //   const material500 = new THREE.MeshLambertMaterial({
+    //     ccolor: 0xffffff,
+    //     specular: 0x555555,
+    //     shininess: 200
+    //   });
+
+    //   // Creando una malla con la geometría cargada y el material creado
+    //   const mesh_trofeo = new THREE.Mesh(geometry158, material500);
+
+    //   // Configurando la posición, rotación y escala de la malla
+    //   mesh_trofeo.position.set(300, 2, 5);
+    //   mesh_trofeo.rotation.set(-Math.PI / 2, 0, 0);
+    //   mesh_trofeo.scale.set(0.4, 0.4, 0.4);
+
+    //   // Agregando la malla a la escena
+    //   scene.add(trofeo);
+    // });
+    ///////////////////////////////////////////////////// Trofeo //////////////////////////////////////////////////////////
 
     //🔥🔥🔥🔥🔥Rendering y animación🔥🔥🔥🔥🔥
     requestAnimationFrame(render);
